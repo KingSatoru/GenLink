@@ -1,42 +1,259 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="/public/js/notyet.js"></script>)
-  <title>Feature Not Yet Available</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Not Yet — OldPeopleApp</title>
   <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      justify-content: center;
-      align-items: center;
-      background: #f8f8f8;
+    :root{
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --muted: #607d8b;
+      --accent: #1976d2;
+      --danger: #b71c1c;
+      --radius: 12px;
     }
-    .message {
-      background: #fff;
-      padding: 2rem 3rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-      font-size: 1.4rem;
-      text-align: center;
+    html,body{
+      height:100%;
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background: linear-gradient(180deg,#eef3f7,#f7fafc);
+      color:#263238;
     }
-    a {
-      margin-top: 1.5rem;
-      display: inline-block;
-      color: #3977de;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 1.1rem;
+    .wrap{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+      box-sizing:border-box;
+    }
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:0 8px 30px rgba(20,30,40,0.06);
+      max-width:720px;
+      width:100%;
+      padding:28px;
+      text-align:center;
+    }
+    .status-row{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:14px;
+      font-size:18px;
+      font-weight:600;
+      color:var(--muted);
+    }
+    .spinner {
+      width:26px;
+      height:26px;
+      border-radius:50%;
+      border:4px solid rgba(0,0,0,0.08);
+      border-top-color: var(--accent);
+      animation:spin 900ms linear infinite;
+      flex:0 0 26px;
+    }
+    @keyframes spin{ to{ transform: rotate(360deg); } }
+    .failed-icon{
+      display:none;
+      width:26px;
+      height:26px;
+      flex:0 0 26px;
+      color:var(--danger);
+      font-weight:700;
+      font-size:20px;
+      align-items:center;
+      justify-content:center;
+      display:inline-flex;
+    }
+    .status-text { color:var(--muted); }
+    .status-text.fail{ color:var(--danger); }
+    .subtitle{
+      margin-top:12px;
+      color:#455a64;
+      font-weight:500;
+      font-size:15px;
+    }
+    .actions{
+      margin-top:18px;
+      display:flex;
+      gap:10px;
+      justify-content:center;
+    }
+    .btn{
+      padding:8px 14px;
+      border-radius:9px;
+      border:1px solid rgba(0,0,0,0.06);
+      background:white;
+      cursor:pointer;
+      font-weight:700;
+      color:#263238;
+    }
+    .btn.primary{
+      background:var(--accent);
+      color:white;
+      border-color:var(--accent);
+    }
+    .hidden{ display:none !important; }
+    .final{
+      margin-top:16px;
+      color:#37474f;
+      font-size:16px;
+      font-weight:600;
+    }
+    a.home-link{
+      color:var(--accent);
+      text-decoration:none;
+      font-weight:700;
+      margin-left:8px;
+    }
+    footer.note{
+      margin-top:18px;
+      font-size:13px;
+      color:#90a4ae;
     }
   </style>
 </head>
 <body>
-  <div class="message">
-    <p>This feature is not yet added.</p>
-    <a href="index.html">&larr; Back to Home</a>
+  <div class="wrap">
+    <div class="card" role="main" aria-labelledby="statusTitle">
+      <div class="status-row" id="statusRow" aria-live="polite" aria-atomic="true">
+        <div class="spinner" id="spinner" aria-hidden="true"></div>
+        <div class="failed-icon" id="failedIcon" aria-hidden="true">✖</div>
+        <div id="statusTitle" class="status-text">Loading…</div>
+      </div>
+
+      <div id="subtitle" class="subtitle">Please wait while we load this page.</div>
+
+      <div id="actions" class="actions hidden" aria-hidden="true">
+        <button class="btn" id="retryBtn">Retry</button>
+        <button class="btn primary" id="homeBtn">Go to homepage</button>
+      </div>
+
+      <div id="finalMessage" class="final hidden" role="status" aria-live="polite">
+        This page does not exist.
+        <a class="home-link" href="/" id="homeLink">Return home</a>
+      </div>
+
+      <footer class="note">If you reached this from a bookmark, the page may have been removed.</footer>
+    </div>
   </div>
+
+  <script>
+    (function(){
+      'use strict';
+
+      // Timings (milliseconds) - tweak these values if you'd like
+      const LOAD_TIME = 1500;       // time to show "Loading…"
+      const FAIL_SHOW_TIME = 1200;  // time to show "Loading failed"
+      const REDIRECT_TIME = 1600;   // time to show "Redirecting…"
+      // Sequence: Loading -> Loading failed -> Redirecting -> Final message
+
+      // DOM refs
+      const spinner = document.getElementById('spinner');
+      const failedIcon = document.getElementById('failedIcon');
+      const statusTitle = document.getElementById('statusTitle');
+      const subtitle = document.getElementById('subtitle');
+      const actions = document.getElementById('actions');
+      const retryBtn = document.getElementById('retryBtn');
+      const homeBtn = document.getElementById('homeBtn');
+      const finalMessage = document.getElementById('finalMessage');
+      const homeLink = document.getElementById('homeLink');
+
+      // Helper state for timers
+      let timers = [];
+
+      function clearAllTimers(){
+        timers.forEach(t => clearTimeout(t));
+        timers = [];
+      }
+
+      function showLoading(){
+        clearAllTimers();
+        spinner.style.display = '';
+        failedIcon.style.display = 'none';
+        statusTitle.classList.remove('fail');
+        statusTitle.textContent = 'Loading…';
+        subtitle.textContent = 'Please wait while we load this page.';
+        actions.classList.add('hidden');
+        finalMessage.classList.add('hidden');
+        actions.setAttribute('aria-hidden','true');
+      }
+
+      function showFailed(){
+        spinner.style.display = 'none';
+        failedIcon.style.display = 'inline-flex';
+        statusTitle.classList.add('fail');
+        statusTitle.textContent = 'Loading failed';
+        subtitle.textContent = 'We couldn\'t load this page right now.';
+      }
+
+      function showRedirecting(){
+        // show spinner again for redirecting feel
+        spinner.style.display = '';
+        failedIcon.style.display = 'none';
+        statusTitle.classList.remove('fail');
+        statusTitle.textContent = 'Redirecting…';
+        subtitle.textContent = 'Attempting to navigate to a safe page.';
+      }
+
+      function showFinal(){
+        spinner.style.display = 'none';
+        failedIcon.style.display = 'none';
+        statusTitle.textContent = 'Not found';
+        subtitle.textContent = '';
+        finalMessage.classList.remove('hidden');
+        actions.classList.remove('hidden');
+        actions.setAttribute('aria-hidden','false');
+      }
+
+      function startSequence(){
+        showLoading();
+        // After LOAD_TIME -> show failed
+        const t1 = setTimeout(() => {
+          showFailed();
+
+          // After FAIL_SHOW_TIME -> show redirecting
+          const t2 = setTimeout(() => {
+            showRedirecting();
+
+            // After REDIRECT_TIME -> final message
+            const t3 = setTimeout(() => {
+              showFinal();
+            }, REDIRECT_TIME);
+
+            timers.push(t3);
+          }, FAIL_SHOW_TIME);
+
+          timers.push(t2);
+        }, LOAD_TIME);
+
+        timers.push(t1);
+      }
+
+      // Wire up actions
+      retryBtn.addEventListener('click', function(){
+        startSequence();
+      });
+      homeBtn.addEventListener('click', function(){
+        window.location.href = '/';
+      });
+      homeLink.addEventListener('click', function(){
+        // normal navigation - no special handling
+      });
+
+      // Start it on DOM ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startSequence);
+      } else {
+        startSequence();
+      }
+
+      // Clean timers when user navigates away (good practice)
+      window.addEventListener('beforeunload', clearAllTimers);
+    })();
+  </script>
 </body>
 </html>
