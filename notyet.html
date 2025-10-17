@@ -209,6 +209,25 @@
         actions.setAttribute('aria-hidden','false');
       }
 
+      // Compute the best "site root" to return to.
+      // For GitHub Pages project sites (https://<user>.github.io/<repo>/...) the repo name
+      // is the first non-empty path segment, so we return '/<repo>/'.
+      // For user pages (no path segments) we return '/'.
+      function computeSiteRoot() {
+        const segs = location.pathname.split('/').filter(Boolean);
+        if (segs.length === 0) {
+          // likely a user site or served at root
+          return '/';
+        }
+        // If we're on github.io domain and there is at least one path segment,
+        // treat the first segment as the project base.
+        if (location.hostname.endsWith('github.io')) {
+          return '/' + segs[0] + '/';
+        }
+        // Default to root for other hosts (most apps will handle '/' correctly).
+        return '/';
+      }
+
       function startSequence(){
         showLoading();
         // After LOAD_TIME -> show failed
@@ -237,11 +256,18 @@
       retryBtn.addEventListener('click', function(){
         startSequence();
       });
+
+      // Compute proper base and wire the home navigation to it
+      const siteRoot = computeSiteRoot();
+      // update the inline anchor so middle-click / open-in-new-tab works
+      if (homeLink) homeLink.setAttribute('href', siteRoot);
+
       homeBtn.addEventListener('click', function(){
-        window.location.href = '/';
+        window.location.href = siteRoot;
       });
+
       homeLink.addEventListener('click', function(){
-        // normal navigation - no special handling
+        // normal navigation - already set to siteRoot
       });
 
       // Start it on DOM ready
