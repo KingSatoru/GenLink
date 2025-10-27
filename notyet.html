@@ -3,282 +3,266 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Not Yet — OldPeopleApp</title>
+  <title>Get Started — GenLink</title>
+  <link rel="stylesheet" href="styles.css">
   <style>
+    /* Small page-specific overrides to match original look */
     :root{
-      --bg: #f4f6f8;
-      --card: #ffffff;
       --muted: #607d8b;
       --accent: #1976d2;
       --danger: #b71c1c;
       --radius: 12px;
+      --card-bg: #ffffff;
+      --page-bg: linear-gradient(180deg,#eef3f7,#f7fafc);
     }
-    html,body{
-      height:100%;
-      margin:0;
-      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
-      background: linear-gradient(180deg,#eef3f7,#f7fafc);
-      color:#263238;
+
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:var(--page-bg);color:#263238}
+    .wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:28px;box-sizing:border-box}
+    .card{background:var(--card-bg);border-radius:var(--radius);box-shadow:0 8px 30px rgba(20,30,40,0.06);max-width:720px;width:100%;padding:28px;text-align:left}
+    .center{ text-align:center }
+    h1{margin:0 0 6px 0;font-size:1.6rem;color:var(--accent)}
+    .lead{color:var(--muted);margin-top:0;font-weight:600}
+    .role-choices{display:flex;gap:10px;justify-content:center;margin:18px 0}
+    .btn.small{padding:8px 12px;border-radius:8px}
+    form{margin-top:12px;display:grid;gap:12px}
+    label{font-weight:600;color:#37474f;font-size:0.95rem}
+    input[type="text"], input[type="email"], input[type="tel"], textarea, select {
+      padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,0.08);font-size:1rem;width:100%;box-sizing:border-box;
     }
-    .wrap{
-      min-height:100%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:28px;
-      box-sizing:border-box;
-    }
-    .card{
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:0 8px 30px rgba(20,30,40,0.06);
-      max-width:720px;
-      width:100%;
-      padding:28px;
-      text-align:center;
-    }
-    .status-row{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:14px;
-      font-size:18px;
-      font-weight:600;
-      color:var(--muted);
-    }
-    .spinner {
-      width:26px;
-      height:26px;
-      border-radius:50%;
-      border:4px solid rgba(0,0,0,0.08);
-      border-top-color: var(--accent);
-      animation:spin 900ms linear infinite;
-      flex:0 0 26px;
-    }
-    @keyframes spin{ to{ transform: rotate(360deg); } }
-    .failed-icon{
-      display:none;
-      width:26px;
-      height:26px;
-      flex:0 0 26px;
-      color:var(--danger);
-      font-weight:700;
-      font-size:20px;
-      align-items:center;
-      justify-content:center;
-      display:inline-flex;
-    }
-    .status-text { color:var(--muted); }
-    .status-text.fail{ color:var(--danger); }
-    .subtitle{
-      margin-top:12px;
-      color:#455a64;
-      font-weight:500;
-      font-size:15px;
-    }
-    .actions{
-      margin-top:18px;
-      display:flex;
-      gap:10px;
-      justify-content:center;
-    }
-    .btn{
-      padding:8px 14px;
-      border-radius:9px;
-      border:1px solid rgba(0,0,0,0.06);
-      background:white;
-      cursor:pointer;
-      font-weight:700;
-      color:#263238;
-    }
-    .btn.primary{
-      background:var(--accent);
-      color:white;
-      border-color:var(--accent);
-    }
-    .hidden{ display:none !important; }
-    .final{
-      margin-top:16px;
-      color:#37474f;
-      font-size:16px;
-      font-weight:600;
-    }
-    a.home-link{
-      color:var(--accent);
-      text-decoration:none;
-      font-weight:700;
-      margin-left:8px;
-    }
-    footer.note{
-      margin-top:18px;
-      font-size:13px;
-      color:#90a4ae;
-    }
+    .row{display:flex;gap:10px}
+    .half{flex:1}
+    .help-note{font-size:0.9rem;color:#607d8b;margin-top:6px}
+    .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+    .message{padding:12px;border-radius:8px;background:#e8f0ff;color:#0b4ea2;font-weight:700}
+    .error{background:#fdecea;color:var(--danger);border:1px solid rgba(183,28,28,0.08)}
+    .small-muted{font-size:0.9rem;color:#90a4ae}
+    .back-link{color:var(--accent);text-decoration:none;font-weight:700}
+    footer.note{margin-top:18px;font-size:13px;color:#90a4ae;text-align:center}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card" role="main" aria-labelledby="statusTitle">
-      <div class="status-row" id="statusRow" aria-live="polite" aria-atomic="true">
-        <div class="spinner" id="spinner" aria-hidden="true"></div>
-        <div class="failed-icon" id="failedIcon" aria-hidden="true">✖</div>
-        <div id="statusTitle" class="status-text">Loading…</div>
+    <main class="card" role="main" aria-labelledby="pageTitle">
+      <div class="center">
+        <h1 id="pageTitle">Welcome to GenLink</h1>
+        <div id="subtitle" class="lead">Help us match volunteers with elders in need.</div>
       </div>
 
-      <div id="subtitle" class="subtitle">Please wait while we load this page.</div>
-
-      <div id="actions" class="actions hidden" aria-hidden="true">
-        <button class="btn" id="retryBtn">Retry</button>
-        <button class="btn primary" id="homeBtn">Go to homepage</button>
+      <!-- Role selector shown when role is not supplied -->
+      <div id="roleSelector" class="role-choices" aria-hidden="true">
+        <a href="notyet.html?role=volunteer" class="btn primary small">I'm a Volunteer</a>
+        <a href="notyet.html?role=elder" class="btn secondary small">I'm an Elder</a>
       </div>
 
-      <div id="finalMessage" class="final hidden" role="status" aria-live="polite">
-        This page does not exist.
-        <a class="home-link" href="/" id="homeLink">Return home</a>
-      </div>
+      <!-- Forms -->
+      <section id="formArea" aria-live="polite">
+        <!-- Volunteer form -->
+        <form id="volunteerForm" class="hidden" novalidate>
+          <label for="v-name">Full name</label>
+          <input id="v-name" name="name" type="text" placeholder="Jane Doe" required>
 
-      <footer class="note">If you reached this from a bookmark, the page may have been removed.</footer>
-    </div>
+          <div class="row">
+            <div class="half">
+              <label for="v-email">Email</label>
+              <input id="v-email" name="email" type="email" placeholder="you@example.com" required>
+            </div>
+            <div class="half">
+              <label for="v-phone">Phone</label>
+              <input id="v-phone" name="phone" type="tel" placeholder="+1 555 555 5555">
+            </div>
+          </div>
+
+          <label for="v-city">City / Area</label>
+          <input id="v-city" name="city" type="text" placeholder="e.g., Springfield" required>
+
+          <label>Services you can offer (select all that apply)</label>
+          <div>
+            <label><input type="checkbox" name="services" value="shopping"> Grocery shopping / pick-up</label><br>
+            <label><input type="checkbox" name="services" value="transport"> Transportation / errands</label><br>
+            <label><input type="checkbox" name="services" value="visits"> Friendly visits / calls</label><br>
+            <label><input type="checkbox" name="services" value="tech"> Basic tech help</label>
+          </div>
+
+          <label for="v-availability">Availability / notes</label>
+          <textarea id="v-availability" name="availability" rows="3" placeholder="Weekday mornings, weekends, evenings..."></textarea>
+
+          <div class="actions">
+            <button type="button" class="btn" id="v-back">Back</button>
+            <button type="submit" class="btn primary">Sign up as Volunteer</button>
+          </div>
+          <div id="v-msg" class="help-note small-muted" role="status" aria-live="polite"></div>
+        </form>
+
+        <!-- Elder form -->
+        <form id="elderForm" class="hidden" novalidate>
+          <label for="e-name">Full name</label>
+          <input id="e-name" name="name" type="text" placeholder="John Smith" required>
+
+          <div class="row">
+            <div class="half">
+              <label for="e-contact">Preferred contact (email or phone)</label>
+              <input id="e-contact" name="contact" type="text" placeholder="email or phone" required>
+            </div>
+            <div class="half">
+              <label for="e-city">City / Area</label>
+              <input id="e-city" name="city" type="text" placeholder="e.g., Springfield" required>
+            </div>
+          </div>
+
+          <label>Type of assistance you need (select all that apply)</label>
+          <div>
+            <label><input type="checkbox" name="needs" value="shopping"> Grocery shopping / pick-up</label><br>
+            <label><input type="checkbox" name="needs" value="transport"> Transportation / appointments</label><br>
+            <label><input type="checkbox" name="needs" value="visits"> Friendly visits / calls</label><br>
+            <label><input type="checkbox" name="needs" value="tech"> Help with phone / computer</label>
+          </div>
+
+          <label for="e-mobility">Do you have mobility or special access needs?</label>
+          <select id="e-mobility" name="mobility">
+            <option value="no">No</option>
+            <option value="yes">Yes — assistance required</option>
+            <option value="limited">Limited — best with short walks</option>
+          </select>
+
+          <label for="e-notes">Preferred times / additional notes</label>
+          <textarea id="e-notes" name="notes" rows="3" placeholder="Mornings are best, avoid weekends..."></textarea>
+
+          <div class="actions">
+            <button type="button" class="btn" id="e-back">Back</button>
+            <button type="submit" class="btn primary">Request Assistance</button>
+          </div>
+          <div id="e-msg" class="help-note small-muted" role="status" aria-live="polite"></div>
+        </form>
+
+        <!-- Confirmation / success -->
+        <div id="success" class="hidden">
+          <div class="message" role="status" aria-live="polite">Thank you — your information was recorded (prototype). We'll reach out if there's a match in your area.</div>
+          <p class="small-muted">This is a prototype. No data is sent to a server. Use the link below to return home.</p>
+          <p><a class="back-link" href="/">Return home</a></p>
+        </div>
+
+        <!-- Fallback note -->
+        <div id="fallback" class="small-muted center hidden" role="status" aria-live="polite">
+          Can't see a form? <a class="back-link" href="/">Return to home</a>
+        </div>
+      </section>
+
+      <footer class="note">If you reached this from a bookmark, the page may have been moved or updated.</footer>
+    </main>
   </div>
 
   <script>
-    (function(){
+    (function () {
       'use strict';
 
-      // Timing Control Panel (in milliseconds)
-      const LOAD_TIME = 1500;       // time to show "Loading…"
-      const FAIL_SHOW_TIME = 1450;  // time to show "Loading failed"
-      const REDIRECT_TIME = 1600;   // time to show "Redirecting…"
-      // Sequence: Loading -> Loading failed -> Redirecting -> Final message
-
-      // DOM refs
-      const spinner = document.getElementById('spinner');
-      const failedIcon = document.getElementById('failedIcon');
-      const statusTitle = document.getElementById('statusTitle');
+      // Elements
+      const roleSelector = document.getElementById('roleSelector');
+      const volunteerForm = document.getElementById('volunteerForm');
+      const elderForm = document.getElementById('elderForm');
+      const success = document.getElementById('success');
+      const fallback = document.getElementById('fallback');
+      const pageTitle = document.getElementById('pageTitle');
       const subtitle = document.getElementById('subtitle');
-      const actions = document.getElementById('actions');
-      const retryBtn = document.getElementById('retryBtn');
-      const homeBtn = document.getElementById('homeBtn');
-      const finalMessage = document.getElementById('finalMessage');
-      const homeLink = document.getElementById('homeLink');
 
-      // Helper state for timers
-      let timers = [];
+      // Back buttons
+      document.getElementById('v-back').addEventListener('click', () => {
+        location.href = '/';
+      });
+      document.getElementById('e-back').addEventListener('click', () => {
+        location.href = '/';
+      });
 
-      function clearAllTimers(){
-        timers.forEach(t => clearTimeout(t));
-        timers = [];
+      // Utility: show/hide helpers
+      function hideAll() {
+        roleSelector.setAttribute('aria-hidden','true');
+        roleSelector.classList.add('hidden');
+        volunteerForm.classList.add('hidden');
+        elderForm.classList.add('hidden');
+        success.classList.add('hidden');
+        fallback.classList.add('hidden');
+      }
+      function show(el) {
+        el.classList.remove('hidden');
+        el.removeAttribute('aria-hidden');
       }
 
-      function showLoading(){
-        clearAllTimers();
-        spinner.style.display = '';
-        failedIcon.style.display = 'none';
-        statusTitle.classList.remove('fail');
-        statusTitle.textContent = 'Loading…';
-        subtitle.textContent = 'Please wait while we load this page.';
-        actions.classList.add('hidden');
-        finalMessage.classList.add('hidden');
-        actions.setAttribute('aria-hidden','true');
-      }
+      // Basic client-side "submit" handlers (prototype only)
+      volunteerForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const name = document.getElementById('v-name').value.trim();
+        const city = document.getElementById('v-city').value.trim();
+        const msg = document.getElementById('v-msg');
 
-      function showFailed(){
-        spinner.style.display = 'none';
-        failedIcon.style.display = 'inline-flex';
-        statusTitle.classList.add('fail');
-        statusTitle.textContent = 'Loading failed';
-        subtitle.textContent = 'We couldn\'t load this page right now.';
-      }
-
-      function showRedirecting(){
-        // show spinner again for redirecting feel
-        spinner.style.display = '';
-        failedIcon.style.display = 'none';
-        statusTitle.classList.remove('fail');
-        statusTitle.textContent = 'Redirecting…';
-        subtitle.textContent = 'Attempting to navigate to a safe page.';
-      }
-
-      function showFinal(){
-        spinner.style.display = 'none';
-        failedIcon.style.display = 'none';
-        statusTitle.textContent = 'Not found';
-        subtitle.textContent = '';
-        finalMessage.classList.remove('hidden');
-        actions.classList.remove('hidden');
-        actions.setAttribute('aria-hidden','false');
-      }
-
-      // Compute the best "site root" to return to.
-      // For GitHub Pages project sites (https://<user>.github.io/<repo>/...) the repo name
-      // is the first non-empty path segment, so we return '/<repo>/'.
-      // For user pages (no path segments) we return '/'.
-      function computeSiteRoot() {
-        const segs = location.pathname.split('/').filter(Boolean);
-        if (segs.length === 0) {
-          // likely a user site or served at root
-          return '/';
+        if (!name || !city) {
+          msg.textContent = 'Please provide your name and city.';
+          msg.classList.add('error');
+          return;
         }
-        // If we're on github.io domain and there is at least one path segment,
-        // treat the first segment as the project base.
-        if (location.hostname.endsWith('github.io')) {
-          return '/' + segs[0] + '/';
+        msg.textContent = '';
+        msg.classList.remove('error');
+
+        // Simulate success — in a real app you'd POST to an API here.
+        hideAll();
+        show(success);
+      });
+
+      elderForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const name = document.getElementById('e-name').value.trim();
+        const contact = document.getElementById('e-contact').value.trim();
+        const city = document.getElementById('e-city').value.trim();
+        const msg = document.getElementById('e-msg');
+
+        if (!name || !contact || !city) {
+          msg.textContent = 'Please provide your name, a contact method, and your city.';
+          msg.classList.add('error');
+          return;
         }
-        // Default to root for other hosts (most apps will handle '/' correctly).
-        return '/';
+        msg.textContent = '';
+        msg.classList.remove('error');
+
+        // Simulate success
+        hideAll();
+        show(success);
+      });
+
+      // Decide which UI to show:
+      function decideUI() {
+        const params = new URLSearchParams(location.search);
+        const role = (params.get('role') || '').toLowerCase();
+
+        if (role === 'volunteer') {
+          hideAll();
+          pageTitle.textContent = 'Volunteer sign-up';
+          subtitle.textContent = 'Thank you for offering your time — tell us a bit about yourself.';
+          show(volunteerForm);
+          return;
+        }
+        if (role === 'elder') {
+          hideAll();
+          pageTitle.textContent = 'Request assistance';
+          subtitle.textContent = 'Tell us what kind of help you need and how to reach you.';
+          show(elderForm);
+          return;
+        }
+
+        // If no role passed, show a choice so users can pick here.
+        hideAll();
+        show(roleSelector);
+        roleSelector.removeAttribute('aria-hidden');
       }
 
-      function startSequence(){
-        showLoading();
-        // After LOAD_TIME -> show failed
-        const t1 = setTimeout(() => {
-          showFailed();
-
-          // After FAIL_SHOW_TIME -> show redirecting
-          const t2 = setTimeout(() => {
-            showRedirecting();
-
-            // After REDIRECT_TIME -> final message
-            const t3 = setTimeout(() => {
-              showFinal();
-            }, REDIRECT_TIME);
-
-            timers.push(t3);
-          }, FAIL_SHOW_TIME);
-
-          timers.push(t2);
-        }, LOAD_TIME);
-
-        timers.push(t1);
-      }
-
-      // Wire up actions
-      retryBtn.addEventListener('click', function(){
-        startSequence();
-      });
-
-      // Compute proper base and wire the home navigation to it
-      const siteRoot = computeSiteRoot();
-      // update the inline anchor so middle-click / open-in-new-tab works
-      if (homeLink) homeLink.setAttribute('href', siteRoot);
-
-      homeBtn.addEventListener('click', function(){
-        window.location.href = siteRoot;
-      });
-
-      homeLink.addEventListener('click', function(){
-        // normal navigation - already set to siteRoot
-      });
-
-      // Start it on DOM ready
+      // When loaded, decide UI
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', startSequence);
+        document.addEventListener('DOMContentLoaded', decideUI);
       } else {
-        startSequence();
+        decideUI();
       }
 
-      // Clean timers when user navigates away (good practice)
-      window.addEventListener('beforeunload', clearAllTimers);
+      // Accessibility: pressing Escape returns home
+      window.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Escape') location.href = '/';
+      });
     })();
   </script>
 </body>
